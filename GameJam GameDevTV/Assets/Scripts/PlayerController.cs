@@ -63,13 +63,12 @@ public class PlayerController : MonoBehaviour
     public bool isClimbing = false;
 
     public Transform topCheck;
-
-
+    
     // Wall Jump Variables
     private bool wallJumped;
-    public float xWallForce;
-    public float yWallForce;
-    public float wallJumpTime;
+
+    public ParticleSystem jumpParticles;
+    
 
     // Animator Hashes
     private static readonly int s_WalkingHash = Animator.StringToHash("walking");
@@ -115,7 +114,7 @@ public class PlayerController : MonoBehaviour
         HandleWallMovement();
         // HandleWallJump();
 
-        _anim.SetBool(s_WalkingHash, xInput != 0);
+        _anim.SetBool(s_WalkingHash, xInput != 0 && !onWall);
         _anim.SetBool(s_JumpingHash, !onGround);
         _anim.SetBool(s_GhostHash, _isGhost);
         _anim.SetBool(s_PossessHash, isClimbing);
@@ -191,6 +190,8 @@ public class PlayerController : MonoBehaviour
             // _rb.AddRelativeForce(Vector2.up * jumpForce * 100);
             jumpBufferCount = 0;
             _remainingJumps--;
+            
+            jumpParticles.Play();
         }
 
         // Gradually decrease jumpBufferCount over time
@@ -285,6 +286,7 @@ public class PlayerController : MonoBehaviour
             if (onGround)
             {
                 ResetExtraJumps();
+                // jumpParticles.Play();
                 wallJumped = false;
             }
 
