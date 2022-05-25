@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7386312161081235267}
   m_Layer: 0
-  m_Name: BackCheck
+  m_Name: LeftCheck
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -41,7 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3784667781198097567}
   m_Layer: 0
-  m_Name: FrontCheck
+  m_Name: RightCheck
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -117,10 +117,10 @@ MonoBehaviour:
   speed: 7
   jumpForce: 7
   _canMove: 1
-  _facingRight: 1
+  facingRight: 1
   _verticalMovement: 0
   _isGhost: 0
-  _isOnGround: 0
+  onGround: 0
   groundCheck: {fileID: 3784667782562844698}
   checkRadius: 0.1
   whatIsGround:
@@ -129,15 +129,16 @@ MonoBehaviour:
   _remainingJumps: 0
   jumpHangTime: 0.2
   jumpBufferLength: 0.1
-  _isFacingWall: 0
-  _isBackWall: 0
-  frontCheck: {fileID: 3784667781198097567}
-  backCheck: {fileID: 7386312161081235267}
-  _wallSliding: 0
+  onWall: 0
+  onRightWall: 0
+  onLeftWall: 0
+  rightCheck: {fileID: 3784667781198097567}
+  leftCheck: {fileID: 7386312161081235267}
+  wallSliding: 0
   wallSlideSpeed: 2
-  _wallGrab: 0
-  _isClimbing: 0
-  topCheck: {fileID: 0}
+  wallGrab: 0
+  isClimbing: 0
+  topCheck: {fileID: 3427479555255764770}
   xWallForce: 10
   yWallForce: 5
   wallJumpTime: 0.1
