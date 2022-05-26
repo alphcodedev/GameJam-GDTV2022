@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     private float xInput;
     private float yInput;
 
-    public bool _canMove = true;
+    public bool canMove = true;
     public bool facingRight = true;
 
     public bool FacingRight
@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer _sprite;
 
     public bool _verticalMovement = false;
-    public bool _isGhost = false;
+    public bool isGhost = false;
 
     public bool VerticalMovement
     {
@@ -47,6 +47,9 @@ public class PlayerController : MonoBehaviour
     public float jumpBufferLength = .1f;
     private float jumpBufferCount;
 
+    public bool onTop;
+    public bool onCorner;
+
     // Wall Slide Variables
     public bool onWall;
     public bool onRightWall;
@@ -63,18 +66,18 @@ public class PlayerController : MonoBehaviour
     public bool isClimbing = false;
 
     public Transform topCheck;
-    
+
     // Wall Jump Variables
     private bool wallJumped;
 
     public ParticleSystem jumpParticles;
-    
+
 
     // Animator Hashes
     private static readonly int s_WalkingHash = Animator.StringToHash("walking");
     private static readonly int s_JumpingHash = Animator.StringToHash("jumping");
     private static readonly int s_GhostHash = Animator.StringToHash("ghost");
-    private static readonly int s_PossessHash = Animator.StringToHash("possess");
+    private static readonly int s_GrabHash = Animator.StringToHash("grab");
 
     // Constants
     private const int k_RemainingJumpsAmount = 1;
@@ -104,7 +107,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.P))
         {
-            _isGhost = !_isGhost;
+            isGhost = !isGhost;
         }
 
         xInput = Input.GetAxis("Horizontal");
@@ -116,18 +119,21 @@ public class PlayerController : MonoBehaviour
 
         _anim.SetBool(s_WalkingHash, xInput != 0 && !onWall);
         _anim.SetBool(s_JumpingHash, !onGround);
-        _anim.SetBool(s_GhostHash, _isGhost);
-        _anim.SetBool(s_PossessHash, isClimbing);
-
+        _anim.SetBool(s_GhostHash, isGhost);
+        _anim.SetBool(s_GrabHash, isClimbing || wallGrab && onGround && isGhost);
     }
-    
+
     private void FixedUpdate()
     {
         onGround = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
+        onTop = Physics2D.OverlapCircle(topCheck.position, checkRadius, whatIsGround);
         onRightWall = Physics2D.OverlapCircle(rightCheck.position, checkRadius, whatIsGround);
         onLeftWall = Physics2D.OverlapCircle(leftCheck.position, checkRadius, whatIsGround);
         onWall = onLeftWall || onRightWall;
+        onCorner = onWall && (onGround || onTop);
 
+        
+        HandleFlip();
         PerformMovement();
         PerformJump();
         PerformWallMovement();
@@ -144,9 +150,9 @@ public class PlayerController : MonoBehaviour
                 jumpBufferCount = jumpBufferLength;
             }
 
-            if(onWall && !onGround && !_isGhost)
+            if (onWall && !onGround && !isGhost)
                 WallJump();
-                
+
             // // Handle Wall Grab
             // if (_wallSliding)
             // {
@@ -154,14 +160,14 @@ public class PlayerController : MonoBehaviour
             //     Invoke(nameof(ResetWallJumping), wallJumpTime);
             // }
         }
-        
+
         // If we're moving upwards when we release the jump button (Sensitive Jump)
         if (Input.GetKeyUp(KeyCode.Space) && _rb.velocity.y > 0 && (!wallJumped))
         {
             limitJump = true;
         }
     }
-    
+
 
     private void PerformJump()
     {
@@ -182,15 +188,15 @@ public class PlayerController : MonoBehaviour
             jumpHangCounter = 0;
             limitJump = false;
         }
-        
+
         // Perform the Jump
-        if (_remainingJumps > 0 && jumpBufferCount > 0 && jumpHangCounter > 0)   // && !onRightWall && !onLeftWall
+        if (_remainingJumps > 0 && jumpBufferCount > 0 && jumpHangCounter > 0) // && !onRightWall && !onLeftWall
         {
             _rb.velocity = Vector2.up * jumpForce * 2;
             // _rb.AddRelativeForce(Vector2.up * jumpForce * 100);
             jumpBufferCount = 0;
             _remainingJumps--;
-            
+
             jumpParticles.Play();
         }
 
@@ -199,7 +205,7 @@ public class PlayerController : MonoBehaviour
             jumpBufferCount -= Time.deltaTime;
 
         // If we're falling, fall faster.
-        if (!_isGhost && _rb.velocity.y < 0)
+        if (!isGhost && _rb.velocity.y < 0)
         {
             _rb.velocity += Vector2.down * 0.1f;
         }
@@ -208,21 +214,31 @@ public class PlayerController : MonoBehaviour
     private void WallJump()
     {
         wallSliding = false;
-        StartCoroutine(DisableMovement(.08f));
+        StartCoroutine(DisableMovement(.1f));
 
         Vector2 wallDir = onRightWall ? Vector2.left : Vector2.right;
-        
+
         _rb.velocity = new Vector2(_rb.velocity.x, 0);
-        _rb.velocity += (Vector2.up / 3f + wallDir / 1.8f) * (jumpForce * 4);
-        
+        _rb.velocity += (Vector2.up / 2.6f + wallDir / 1.6f) * (jumpForce * 4);
+
         wallJumped = true;
     }
 
     private void HandleFlip()
     {
-        if (!facingRight && xInput > 0 || facingRight && xInput < 0)
+        if (!_verticalMovement)
         {
-            Flip();
+            if (!facingRight && xInput > 0 || facingRight && xInput < 0)
+            {
+                Flip();
+            }
+        }
+        else
+        {
+            if (!facingRight && yInput > 0 || facingRight && yInput < 0)
+            {
+                Flip();
+            }
         }
         // if (!_verticalMovement)
         // {
@@ -249,28 +265,28 @@ public class PlayerController : MonoBehaviour
     private IEnumerator DisableMovement
         (float time = 0)
     {
-        _canMove = false;
+        canMove = false;
         yield return new WaitForSeconds(time);
-        _canMove = true;
+        canMove = true;
     }
 
     private void PerformMovement()
     {
         // Player can not move horizontally if it's climbing
-        if (!_canMove || onRightWall && isClimbing)
+        if (!canMove || isClimbing && onWall && !onCorner)
         {
             // Debug.Log("Movement Locked");
             return;
         }
 
-        HandleFlip();
         if (!wallJumped)
         {
             _rb.velocity = new Vector2(xInput * speed, _rb.velocity.y);
         }
         else
         {
-            _rb.velocity = Vector2.Lerp(_rb.velocity, (new Vector2(xInput * speed, _rb.velocity.y)), 10 * Time.deltaTime);
+            _rb.velocity = Vector2.Lerp(_rb.velocity, (new Vector2(xInput * speed, _rb.velocity.y)),
+                10 * Time.deltaTime);
         }
         // if(!_verticalMovement)
         // _rb.velocity = transform.right * speed * _moveInput;
@@ -283,14 +299,18 @@ public class PlayerController : MonoBehaviour
     {
         if (((1 << other.gameObject.layer) & whatIsGround) != 0)
         {
+            if (wallGrab && isGhost)
+            {
+                ModifyCollider(true);
+            }
+
             if (onGround)
             {
                 ResetExtraJumps();
                 // jumpParticles.Play();
-                wallJumped = false;
             }
 
-            if (onWall)
+            if (onWall || onGround)
             {
                 wallJumped = false;
             }
@@ -299,20 +319,45 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D other)
     {
-        if (((1 << other.gameObject.layer) & whatIsGround) != 0 && _isGhost && wallGrab && !onGround)
+        if (((1 << other.gameObject.layer) & whatIsGround) != 0 && isGhost && wallGrab && !onGround && !onTop)
         {
             Unpossess();
         }
     }
+    
+    private void ModifyCollider(bool increase)
+    {
+        if (increase)
+        {
+            if (isColliderModified)
+                return;
 
+            GetComponent<BoxCollider2D>().size += new Vector2(k_PossessColliderXOffset, 0);
+            rightCheck.localPosition += new Vector3(k_PossessFrontCheckerXOffset, 0, 0);
+            leftCheck.localPosition -= new Vector3(k_PossessFrontCheckerXOffset, 0, 0);
+            isColliderModified = true;
+        }
+        else
+        {
+            if (!isColliderModified)
+                return;
+
+            GetComponent<BoxCollider2D>().size -= new Vector2(k_PossessColliderXOffset, 0);
+            rightCheck.localPosition -= new Vector3(k_PossessFrontCheckerXOffset, 0, 0);
+            leftCheck.localPosition += new Vector3(k_PossessFrontCheckerXOffset, 0, 0);
+            isColliderModified = false;
+        }
+    }
+
+    
     private void HandleWallMovement()
     {
         if (Input.GetKeyUp(KeyCode.LeftControl) && wallGrab)
         {
             wallGrab = false;
             isClimbing = false;
-            
-            if (_isGhost)
+
+            if (isGhost)
             {
                 Unpossess();
             }
@@ -321,79 +366,71 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             wallGrab = true;
-
-            if (_isGhost && !isColliderModified)
+            if (isGhost)
             {
-                GetComponent<BoxCollider2D>().size += new Vector2(k_PossessColliderXOffset, 0);
-                rightCheck.localPosition += new Vector3(k_PossessFrontCheckerXOffset, 0, 0);
-                isColliderModified = true;
+                ModifyCollider(true);
             }
         }
     }
 
     private void PerformWallMovement()
     {
-        if (wallGrab)
+        // !WallJumped is also needed so wall jump can be performed as expected (it avoid player from receiving Y slide velocity)
+        wallSliding = onWall && !onGround && xInput != 0 && !wallGrab && !wallJumped;
+
+        isClimbing = wallGrab && (isGhost ? onWall || onTop || onGround : onWall);
+
+        if (isGhost)
         {
-            if (_isGhost)
-            {
-                if (onRightWall)
-                {
-                    if (!inverseMovement)
-                        transform.Rotate(Vector3.forward, facingRight ? 90f : -90);
-                    else
-                        transform.Rotate(Vector3.forward, facingRight ? -90f : 90);
+            // if(!_verticalMovement)
+                _sprite.flipY = isClimbing && onTop && !onCorner;
 
-
-                    if (inverseMovement && transform.rotation.eulerAngles.z is 0 or 90)
-                    {
-                        SwapFacingRight();
-                        inverseMovement = false;
-                    }
-                    else if (!inverseMovement && transform.rotation.eulerAngles.z is 270 or 180)
-                    {
-                        SwapFacingRight();
-                        inverseMovement = true;
-                    }
-
-                    onRightWall = false;
-                    _verticalMovement = !_verticalMovement;
-
-                    // isClimbing = true;
-                }
-                else if (onGround)
-                {
-                    // isClimbing = true;
-                }
-            }
-            else
+            if (isClimbing)
             {
                 if (onWall)
                 {
-                    // isClimbing = true;
-                    //_verticalMovement = true;
+                    var rot = _sprite.transform.localRotation;
+                    rot.eulerAngles = new Vector3(0, 0, onRightWall ? 90 : -90);
+                    _sprite.transform.localRotation = rot;
+
+                    _verticalMovement = true;
+                }
+                else
+                {
+                    _sprite.transform.localRotation = Quaternion.identity;
+                    _verticalMovement = false;
                 }
             }
         }
 
-        // !WallJumped is also needed so wall jump can be performed as expected (it avoid player from receiving Y slide velocity)
-        wallSliding = onWall && !onGround && xInput != 0 && !wallGrab && !wallJumped;
+        PerformClimbMovement();
+        PerformWallSlide();
+    }
 
-        isClimbing = wallGrab && onWall;
-
-        // Perform vertical movement
+    private void PerformClimbMovement()
+    {
+        // Perform vertical movement when climbing
         // if ((onGround || isClimbing) && wallGrab && _verticalMovement)
-        if(isClimbing && !wallJumped)
+        if (isClimbing && !wallJumped)
         {
             _rb.gravityScale = 0;
-            _rb.velocity = new Vector2(0, yInput * speed);
+            
+            // Player can move horizontally while climbing when it's on ground, top or corner
+            var xVel = onTop || onGround ? _rb.velocity.x : 0;
+            // Ghost cannot move vertically when possessing ground or top
+            var yVel = isGhost && !onCorner && (onTop || onGround) ? 0 : yInput * speed;
+            _rb.velocity = new Vector2(xVel, yVel);
         }
         else
         {
             _rb.gravityScale = k_GravityScale;
         }
-        
-        if (wallSliding)
+    }
+
+    private void PerformWallSlide()
+    {
+        // Perform Wall Slide
+        if (wallSliding && !isGhost)
         {
             // If player is moving against the wall dont move horizontally, otherwise move as normal
             //float push = (_isOnWall && _moveInput != 0) ? 0 : _rb.velocity.x;
@@ -404,22 +441,19 @@ public class PlayerController : MonoBehaviour
 
     private void Unpossess()
     {
-        if (isColliderModified)
-        {
-            GetComponent<BoxCollider2D>().size -= new Vector2(k_PossessColliderXOffset, 0);
-            rightCheck.localPosition -= new Vector3(k_PossessFrontCheckerXOffset, 0, 0);
-            isColliderModified = false;
-        }
+        // This is done to keep modified collider when jumping when possessing wall
+        if (!wallGrab)
+            ModifyCollider(false);
 
-        transform.rotation = Quaternion.identity;
+        _sprite.transform.rotation = Quaternion.identity;
         _verticalMovement = false;
         _rb.gravityScale = k_GravityScale;
 
-        if (inverseMovement)
-        {
-            SwapFacingRight();
-            inverseMovement = false;
-        }
+        // if (inverseMovement)
+        // {
+        //     SwapFacingRight();
+        //     inverseMovement = false;
+        // }
 
         isClimbing = false;
     }
@@ -428,17 +462,4 @@ public class PlayerController : MonoBehaviour
     {
         facingRight = !facingRight;
     }
-
-    // private void HandleWallJump()
-    // {
-    //     if (wallJumped)
-    //     {
-    //         _rb.velocity = new Vector2(xWallForce * -_moveInput, yWallForce);
-    //     }
-    // }
-    //
-    // void ResetWallJumping()
-    // {
-    //     wallJumped = false;
-    // }
 }
