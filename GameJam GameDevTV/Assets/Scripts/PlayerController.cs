@@ -78,6 +78,8 @@ public class PlayerController : MonoBehaviour
     private static readonly int s_JumpingHash = Animator.StringToHash("jumping");
     private static readonly int s_GhostHash = Animator.StringToHash("ghost");
     private static readonly int s_GrabHash = Animator.StringToHash("grab");
+    private static readonly int s_XInputHash = Animator.StringToHash("xInput");
+    private static readonly int s_YInputHash = Animator.StringToHash("yInput");
 
     // Constants
     private const int k_RemainingJumpsAmount = 1;
@@ -121,6 +123,8 @@ public class PlayerController : MonoBehaviour
         _anim.SetBool(s_JumpingHash, !onGround);
         _anim.SetBool(s_GhostHash, isGhost);
         _anim.SetBool(s_GrabHash, isClimbing || wallGrab && onGround && isGhost);
+        _anim.SetFloat(s_XInputHash, xInput);
+        _anim.SetFloat(s_YInputHash, yInput);
     }
 
     private void FixedUpdate()
