@@ -77,6 +77,7 @@ public class PlayerController : MonoBehaviour
     private static readonly int s_WalkingHash = Animator.StringToHash("walking");
     private static readonly int s_JumpingHash = Animator.StringToHash("jumping");
     private static readonly int s_GhostHash = Animator.StringToHash("ghost");
+    private static readonly int s_ReviveHash = Animator.StringToHash("revive");
     private static readonly int s_GrabHash = Animator.StringToHash("grab");
     private static readonly int s_XInputHash = Animator.StringToHash("xInput");
     private static readonly int s_YInputHash = Animator.StringToHash("yInput");
@@ -97,6 +98,20 @@ public class PlayerController : MonoBehaviour
         _remainingJumps = k_RemainingJumpsAmount;
     }
 
+    public void Die()
+    {
+        _rb.velocity = Vector2.zero;
+        isGhost = true;
+        _anim.SetTrigger(s_GhostHash);
+        // StartCoroutine(DisableMovement(1f));
+    }
+
+    public void Revive()
+    {
+        isGhost = false;
+        _anim.SetTrigger(s_ReviveHash);
+    }
+
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -110,6 +125,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             isGhost = !isGhost;
+            _anim.SetTrigger(isGhost ? s_GhostHash : s_ReviveHash);
         }
 
         xInput = Input.GetAxis("Horizontal");
@@ -121,7 +137,6 @@ public class PlayerController : MonoBehaviour
 
         _anim.SetBool(s_WalkingHash, xInput != 0 && !onWall);
         _anim.SetBool(s_JumpingHash, !onGround);
-        _anim.SetBool(s_GhostHash, isGhost);
         _anim.SetBool(s_GrabHash, isClimbing || wallGrab && onGround && isGhost);
         _anim.SetFloat(s_XInputHash, xInput);
         _anim.SetFloat(s_YInputHash, yInput);
@@ -129,18 +144,26 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        onGround = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
-        onTop = Physics2D.OverlapCircle(topCheck.position, checkRadius, whatIsGround);
-        onRightWall = Physics2D.OverlapCircle(rightCheck.position, checkRadius, whatIsGround);
-        onLeftWall = Physics2D.OverlapCircle(leftCheck.position, checkRadius, whatIsGround);
-        onWall = onLeftWall || onRightWall;
-        onCorner = onWall && (onGround || onTop);
-
-        
+        HandleCheckers();
         HandleFlip();
         PerformMovement();
         PerformJump();
         PerformWallMovement();
+    }
+
+    private void HandleCheckers()
+    {
+        // ContactFilter2D filter = new ContactFilter2D();
+        // filter.SetLayerMask(whatIsGround);
+        // Collider2D[] rightColliders = new Collider2D[5];
+        // Collider2D[] leftColliders = new Collider2D[5];
+
+        onGround = Physics2D.OverlapCircle(groundCheck.position, checkRadius + .1f, whatIsGround);
+        onTop = Physics2D.OverlapCircle(topCheck.position, checkRadius, whatIsGround);
+        onLeftWall = Physics2D.OverlapCircle(leftCheck.position, checkRadius, whatIsGround);
+        onRightWall = Physics2D.OverlapCircle(rightCheck.position, checkRadius, whatIsGround);
+        onWall = onLeftWall || onRightWall;
+        onCorner = onWall && (onGround || onTop);
     }
 
     private void HandleJump()
@@ -156,13 +179,6 @@ public class PlayerController : MonoBehaviour
 
             if (onWall && !onGround && !isGhost)
                 WallJump();
-
-            // // Handle Wall Grab
-            // if (_wallSliding)
-            // {
-            //     wallJumping = true;
-            //     Invoke(nameof(ResetWallJumping), wallJumpTime);
-            // }
         }
 
         // If we're moving upwards when we release the jump button (Sensitive Jump)
@@ -213,6 +229,11 @@ public class PlayerController : MonoBehaviour
         {
             _rb.velocity += Vector2.down * 0.1f;
         }
+
+        if (onCorner)
+        {
+            ResetExtraJumps();
+        }
     }
 
     private void WallJump()
@@ -220,10 +241,13 @@ public class PlayerController : MonoBehaviour
         wallSliding = false;
         StartCoroutine(DisableMovement(.1f));
 
-        Vector2 wallDir = onRightWall ? Vector2.left : Vector2.right;
+        Vector2 wallJumpDir = onRightWall ? Vector2.left : Vector2.right;
+
+        _sprite.flipX = onRightWall;
+        facingRight = !onRightWall;
 
         _rb.velocity = new Vector2(_rb.velocity.x, 0);
-        _rb.velocity += (Vector2.up / 2.6f + wallDir / 1.6f) * (jumpForce * 4);
+        _rb.velocity += (Vector2.up / 2.6f + wallJumpDir / 1.6f) * (jumpForce * 4);
 
         wallJumped = true;
     }
@@ -244,20 +268,6 @@ public class PlayerController : MonoBehaviour
                 Flip();
             }
         }
-        // if (!_verticalMovement)
-        // {
-        //     if (!_facingRight && xInput > 0 || _facingRight && xInput < 0)
-        //     {
-        //         Flip();
-        //     }
-        // }
-        // else
-        // {
-        // if (!_facingRight && yInput > 0 || _facingRight && yInput < 0)
-        //     {
-        //         Flip();
-        //     }
-        // }
     }
 
     private void Flip()
@@ -328,7 +338,7 @@ public class PlayerController : MonoBehaviour
             Unpossess();
         }
     }
-    
+
     private void ModifyCollider(bool increase)
     {
         if (increase)
@@ -353,7 +363,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    
+
     private void HandleWallMovement()
     {
         if (Input.GetKeyUp(KeyCode.LeftControl) && wallGrab)
@@ -387,7 +397,7 @@ public class PlayerController : MonoBehaviour
         if (isGhost)
         {
             // if(!_verticalMovement)
-                _sprite.flipY = isClimbing && onTop && !onCorner;
+            _sprite.flipY = isClimbing && onTop && !onCorner;
 
             if (isClimbing)
             {
@@ -418,7 +428,7 @@ public class PlayerController : MonoBehaviour
         if (isClimbing && !wallJumped)
         {
             _rb.gravityScale = 0;
-            
+
             // Player can move horizontally while climbing when it's on ground, top or corner
             var xVel = onTop || onGround ? _rb.velocity.x : 0;
             // Ghost cannot move vertically when possessing ground or top
