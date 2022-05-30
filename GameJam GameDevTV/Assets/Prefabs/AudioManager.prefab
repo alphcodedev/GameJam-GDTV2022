@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3026969260766074403
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3026969260766074401}
+  - component: {fileID: 3026969260766074402}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3026969260766074401
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3026969260766074403}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -8.868308, y: -0.05393499, z: 0.061296638}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3026969260766074402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3026969260766074403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bef5aebc91e910f46b147b8fc75d9430, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - name: MainMenuTheme
+    clip: {fileID: 8300000, guid: 358c72b65f1db4f238886aec03017666, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 1
+  - name: AliveTheme
+    clip: {fileID: 8300000, guid: c0f5786f639278d479c9da914217fdad, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 1
+  - name: GhostTheme
+    clip: {fileID: 8300000, guid: 2e19cb06cccd742b59d90e29abfe533b, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 1
+  - name: DeathSound1
+    clip: {fileID: 8300000, guid: b612ec37e030a7e4d8c8053f42dcb380, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 0
+  - name: DeathSound2
+    clip: {fileID: 8300000, guid: 62ef7884cdc419842802fbbbcb2f3fae, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 0
+  - name: Jump1
+    clip: {fileID: 8300000, guid: 43c9667782bdc964d9804f32d7e9eafe, type: 3}
+    volume: 0.7
+    pitch: 1
+    loop: 0
+  - name: OpenDoor
+    clip: {fileID: 8300000, guid: ff5f85da24bc943d1abdc5760a22bc81, type: 3}
+    volume: 1
+    pitch: 0.9
+    loop: 0
+  - name: PickUpKey
+    clip: {fileID: 8300000, guid: 8bce9892017bb5249a57104f9f73d46d, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
