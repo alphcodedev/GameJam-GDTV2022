@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
@@ -48,6 +49,11 @@ public class LevelManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
         {
             PauseGame(!gamePaused);
+        }
+        
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            fader.FadeTo(SceneManager.GetActiveScene().name);
         }
     }
     

@@ -1,10 +1,7 @@
-using System;
+
 using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography;
 using UnityEngine;
-using UnityEngine.Rendering.VirtualTexturing;
-using UnityEngine.XR;
+
 
 public class PlayerController : MonoBehaviour
 {
