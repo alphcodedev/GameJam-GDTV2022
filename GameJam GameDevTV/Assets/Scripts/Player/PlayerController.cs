@@ -108,6 +108,7 @@ public class PlayerController : MonoBehaviour
     {
         wallGrab = false;
         AudioManager.instance.PlaySound("DeathSound");
+        _verticalMovement = false;
         StartCoroutine(DisableMovement(.6f));
         _rb.velocity = Vector2.zero;
         _anim.SetTrigger(s_DeathHash);
