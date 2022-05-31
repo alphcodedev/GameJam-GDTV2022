@@ -384,7 +384,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleWallMovement()
     {
-        if (Input.GetKeyUp(KeyCode.LeftControl) && wallGrab)
+        if (Input.GetKeyUp(KeyCode.LeftShift) && wallGrab)
         {
             wallGrab = false;
             isClimbing = false;
@@ -395,7 +395,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             wallGrab = true;
             if (isGhost)
