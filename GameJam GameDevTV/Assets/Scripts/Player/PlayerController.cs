@@ -1,4 +1,3 @@
-
 using System.Collections;
 using UnityEngine;
 
@@ -58,6 +57,10 @@ public class PlayerController : MonoBehaviour
     public bool wallSliding;
     public float wallSlideSpeed;
 
+    public Transform wallParticlesTransform;
+    public ParticleSystem wallSlideParticles;
+    public ParticleSystem wallJumpParticles;
+
     // Used to know if player is wanting to grab wall
     public bool wallGrab = false;
 
@@ -75,12 +78,15 @@ public class PlayerController : MonoBehaviour
     // Animator Hashes
     private static readonly int s_WalkingHash = Animator.StringToHash("walking");
     private static readonly int s_JumpingHash = Animator.StringToHash("jumping");
+    private static readonly int s_SlidingHash = Animator.StringToHash("sliding");
     private static readonly int s_GhostHash = Animator.StringToHash("ghost");
     private static readonly int s_DeathHash = Animator.StringToHash("death");
     private static readonly int s_ReviveHash = Animator.StringToHash("revive");
     private static readonly int s_GrabHash = Animator.StringToHash("grab");
     private static readonly int s_XInputHash = Animator.StringToHash("xInput");
     private static readonly int s_YInputHash = Animator.StringToHash("yInput");
+    private static readonly int s_CanMoveHash = Animator.StringToHash("canMove");
+
 
     // Constants
     private const int k_RemainingJumpsAmount = 1;
@@ -100,6 +106,7 @@ public class PlayerController : MonoBehaviour
 
     public void Die()
     {
+        wallGrab = false;
         AudioManager.instance.PlaySound("DeathSound");
         StartCoroutine(DisableMovement(.6f));
         _rb.velocity = Vector2.zero;
@@ -108,6 +115,7 @@ public class PlayerController : MonoBehaviour
 
     public void Revive()
     {
+        wallGrab = false;
         AudioManager.instance.PlaySound("DeathSound");
         StartCoroutine(DisableMovement(.5f));
         _rb.velocity = Vector2.zero;
@@ -123,7 +131,7 @@ public class PlayerController : MonoBehaviour
         ResetExtraJumps();
         if (isGhost)
         {
-            Die();
+            _anim.SetTrigger(s_GhostHash);
             AudioManager.instance.PauseSound("AliveTheme");
         }
     }
@@ -136,23 +144,31 @@ public class PlayerController : MonoBehaviour
         //     _anim.SetTrigger(isGhost ? s_GhostHash : s_ReviveHash);
         // }
 
-        xInput = Input.GetAxis("Horizontal");
-        yInput = Input.GetAxis("Vertical");
+        if (canMove)
+        {
+            xInput = Input.GetAxis("Horizontal");
+            yInput = Input.GetAxis("Vertical");
 
-        HandleJump();
-        HandleWallMovement();
-        // HandleWallJump();
+            HandleJump();
+            HandleWallMovement();
+            // HandleWallJump();
+        }
 
         _anim.SetBool(s_WalkingHash, xInput != 0 && !onWall);
         _anim.SetBool(s_JumpingHash, !onGround);
+        _anim.SetBool(s_SlidingHash, wallSliding);
         _anim.SetBool(s_GrabHash, isClimbing || wallGrab && onGround && isGhost);
         _anim.SetFloat(s_XInputHash, xInput);
         _anim.SetFloat(s_YInputHash, yInput);
+        _anim.SetBool(s_CanMoveHash, canMove);
     }
 
     private void FixedUpdate()
     {
         HandleCheckers();
+
+        if (!canMove) return;
+
         HandleFlip();
         PerformMovement();
         PerformJump();
@@ -161,10 +177,10 @@ public class PlayerController : MonoBehaviour
 
     private void HandleCheckers()
     {
-        onGround = Physics2D.OverlapBox(groundCheck.position, new Vector2(.05f,.2f), 0, whatIsGround);
+        onGround = Physics2D.OverlapBox(groundCheck.position, new Vector2(.05f, .2f), 0, whatIsGround);
         onTop = Physics2D.OverlapCircle(topCheck.position, checkRadius, whatIsGround);
-        onLeftWall = Physics2D.OverlapBox(leftCheck.position, new Vector2(.2f,.8f), 0,whatIsGround,2f);
-        onRightWall = Physics2D.OverlapBox(rightCheck.position, new Vector2(.2f,.8f),0, whatIsGround,2f);
+        onLeftWall = Physics2D.OverlapBox(leftCheck.position, new Vector2(.2f, .8f), 0, whatIsGround, 2f);
+        onRightWall = Physics2D.OverlapBox(rightCheck.position, new Vector2(.2f, .8f), 0, whatIsGround, 2f);
         onWall = onLeftWall || onRightWall;
         onCorner = onWall && (onGround || onTop);
     }
@@ -172,10 +188,17 @@ public class PlayerController : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(leftCheck.position,new Vector2(.2f,.8f));
-        Gizmos.DrawWireCube(rightCheck.position,new Vector2(.2f,.8f));
-        Gizmos.DrawWireCube(groundCheck.position,new Vector2(.05f,.2f));
-        Gizmos.DrawWireSphere(topCheck.position,checkRadius);
+        Gizmos.DrawWireCube(leftCheck.position, new Vector2(.2f, .8f));
+        Gizmos.DrawWireCube(rightCheck.position, new Vector2(.2f, .8f));
+        Gizmos.DrawWireCube(groundCheck.position, new Vector2(.05f, .2f));
+        Gizmos.DrawWireSphere(topCheck.position, checkRadius);
+    }
+
+    private IEnumerator PlayJumpParticlesTail(float seconds)
+    {
+        wallSlideParticles.Play();
+        yield return new WaitForSeconds(seconds);
+        wallSlideParticles.Stop();
     }
 
     private void HandleJump()
@@ -231,6 +254,7 @@ public class PlayerController : MonoBehaviour
 
             if (!isGhost)
             {
+                StartCoroutine(PlayJumpParticlesTail(1f));
                 jumpParticles.Play();
                 AudioManager.instance.PlaySound("Jump1");
             }
@@ -267,6 +291,9 @@ public class PlayerController : MonoBehaviour
         _rb.velocity += (Vector2.up / 2.6f + wallJumpDir / 1.6f) * (jumpForce * 4);
 
         wallJumped = true;
+        AudioManager.instance.PlaySound("Jump1");
+        wallJumpParticles.Play();
+        StartCoroutine(PlayJumpParticlesTail(1f));
     }
 
     private void HandleFlip()
@@ -278,16 +305,16 @@ public class PlayerController : MonoBehaviour
                 Flip();
             }
         }
-        else
+        else if (isGhost)
         {
             if (onRightWall && (!facingRight && yInput > 0 || facingRight && yInput < 0))
             {
                 Flip();
-            }else if (onLeftWall && (facingRight && yInput > 0 || !facingRight && yInput < 0))
+            }
+            else if (onLeftWall && (facingRight && yInput > 0 || !facingRight && yInput < 0))
             {
                 Flip();
             }
-
         }
     }
 
@@ -323,10 +350,6 @@ public class PlayerController : MonoBehaviour
             _rb.velocity = Vector2.Lerp(_rb.velocity, (new Vector2(xInput * speed, _rb.velocity.y)),
                 10 * Time.deltaTime);
         }
-        // if(!_verticalMovement)
-        // _rb.velocity = transform.right * speed * _moveInput;
-        // else
-        //     _rb.velocity = new Vector2(_rb.velocity.x, _moveInput * speed) ;
     }
 
 
@@ -351,9 +374,12 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D other)
     {
-        if (((1 << other.gameObject.layer) & whatIsGround) != 0 && isGhost && wallGrab && !onGround && !onTop)
+        if (((1 << other.gameObject.layer) & whatIsGround) != 0)
         {
-            Unpossess();
+            if(isGhost && wallGrab && !onGround && !onTop)
+                Unpossess();
+
+            _verticalMovement = false;
         }
     }
 
@@ -393,6 +419,10 @@ public class PlayerController : MonoBehaviour
             {
                 Unpossess();
             }
+            else
+            {
+                _verticalMovement = false;
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.LeftShift))
@@ -408,9 +438,12 @@ public class PlayerController : MonoBehaviour
     private void PerformWallMovement()
     {
         // !WallJumped is also needed so wall jump can be performed as expected (it avoid player from receiving Y slide velocity)
-        wallSliding = onWall && !onGround && xInput != 0 && !wallGrab && !wallJumped;
+        // _rb.velocity.y is needed to avoid player getting 'stuck' in wall slide when jumping next to a wall.
+        wallSliding = onWall && !onGround && xInput != 0 && !wallGrab && !wallJumped && _rb.velocity.y < 0;
 
         isClimbing = wallGrab && (isGhost ? onWall || onTop || onGround : onWall);
+
+        HandleFlipWallParticles();
 
         if (isGhost)
         {
@@ -439,6 +472,18 @@ public class PlayerController : MonoBehaviour
         PerformWallSlide();
     }
 
+    private void HandleFlipWallParticles()
+    {
+        if (onLeftWall)
+        {
+            wallParticlesTransform.position = leftCheck.position;
+        }
+        else if (onRightWall)
+        {
+            wallParticlesTransform.position = rightCheck.position;
+        }
+    }
+
     private void PerformClimbMovement()
     {
         // Perform vertical movement when climbing
@@ -447,15 +492,28 @@ public class PlayerController : MonoBehaviour
         {
             _rb.gravityScale = 0;
 
+            // ForceToWall is used to push player towards walls or ceiling when climbing
+            const float forceToWall = 1f;
+
             // Player can move horizontally while climbing when it's on ground, top or corner
-            var xVel = onTop || onGround ? _rb.velocity.x : 0;
+            var xVel = onTop || onGround ? _rb.velocity.x : (onRightWall ? forceToWall : -forceToWall);
             // Ghost cannot move vertically when possessing ground or top
-            var yVel = isGhost && !onCorner && (onTop || onGround) ? 0 : yInput * speed;
-            _rb.velocity = new Vector2(xVel, yVel * .5f);
+            var yVel = isGhost && !onCorner && (onTop || onGround)
+                ? (onTop ? forceToWall : -forceToWall)
+                : yInput * speed;
+            _rb.velocity = new Vector2(xVel, yVel) * .8f;
+
+            if (onWall && !isGhost)
+                _verticalMovement = true;
+
+            // ApplyForceToWall();
         }
         else
         {
             _rb.gravityScale = k_GravityScale;
+
+            if (onWall && !isGhost)
+                _verticalMovement = false;
         }
     }
 
@@ -464,10 +522,14 @@ public class PlayerController : MonoBehaviour
         // Perform Wall Slide
         if (wallSliding && !isGhost)
         {
-            // If player is moving against the wall dont move horizontally, otherwise move as normal
-            //float push = (_isOnWall && _moveInput != 0) ? 0 : _rb.velocity.x;
-
             _rb.velocity = new Vector2(_rb.velocity.x, -wallSlideSpeed);
+
+            if (!wallSlideParticles.isPlaying)
+                wallSlideParticles.Play();
+        }
+        else if (wallSlideParticles.isPlaying)
+        {
+            wallSlideParticles.Stop();
         }
     }
 
@@ -480,12 +542,6 @@ public class PlayerController : MonoBehaviour
         _sprite.transform.rotation = Quaternion.identity;
         _verticalMovement = false;
         _rb.gravityScale = k_GravityScale;
-
-        // if (inverseMovement)
-        // {
-        //     SwapFacingRight();
-        //     inverseMovement = false;
-        // }
 
         isClimbing = false;
     }

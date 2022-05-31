@@ -241,6 +241,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3642081985221710035, guid: 96842d306afaf4e4986667d39f4d03aa, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3642081985221710035, guid: 96842d306afaf4e4986667d39f4d03aa, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3642081985221710035, guid: 96842d306afaf4e4986667d39f4d03aa, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3642081985221710062, guid: 96842d306afaf4e4986667d39f4d03aa, type: 3}
+      propertyPath: m_Name
+      value: SlideParticles
+      objectReference: {fileID: 0}
+    - target: {fileID: 3642081985533979072, guid: 96842d306afaf4e4986667d39f4d03aa, type: 3}
+      propertyPath: m_Name
+      value: WallJumpParticles
+      objectReference: {fileID: 0}
     - target: {fileID: 3784667781277009866, guid: 96842d306afaf4e4986667d39f4d03aa, type: 3}
       propertyPath: m_RootOrder
       value: 8
@@ -288,6 +308,10 @@ PrefabInstance:
     - target: {fileID: 3784667781277009873, guid: 96842d306afaf4e4986667d39f4d03aa, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5430359510259243085, guid: 96842d306afaf4e4986667d39f4d03aa, type: 3}
+      propertyPath: m_Name
+      value: JumpParticles
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 96842d306afaf4e4986667d39f4d03aa, type: 3}
@@ -1273,7 +1297,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 436981685}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.497, y: -0.856, z: 5}
+  m_LocalPosition: {x: -6.497, y: -0.856, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4326,6 +4350,7 @@ GameObject:
   - component: {fileID: 1695321990}
   - component: {fileID: 1695321989}
   - component: {fileID: 1695321988}
+  - component: {fileID: 1695321991}
   m_Layer: 7
   m_Name: Principal Layer
   m_TagString: Untagged
@@ -7781,6 +7806,16 @@ CompositeCollider2D:
         Y: -45625000
       - X: -60000000
         Y: -50000000
+  - m_Collider: {fileID: 1695321991}
+    m_ColliderPaths:
+    - - X: 39982012
+        Y: -37175180
+      - X: -60005752
+        Y: -37175180
+      - X: -60005752
+        Y: -48532316
+      - X: 39982012
+        Y: -48532316
   m_CompositePaths:
     m_Paths:
     - - {x: 10.99997, y: -9}
@@ -7791,7 +7826,14 @@ CompositeCollider2D:
       - {x: -3, y: 6.3750296}
       - {x: -2.9999707, y: 7}
       - {x: 0, y: 6.9999704}
-    - - {x: -0.0625, y: -3.0000293}
+    - - {x: 3.9982011, y: -3.7175472}
+      - {x: 1.986585, y: -3.7174852}
+      - {x: 2, y: -3.5833325}
+      - {x: 1.9999708, y: -3}
+      - {x: 0, y: -3.0000293}
+      - {x: -0.0000294, y: -3.717518}
+      - {x: -0.0625, y: -3.7174888}
+      - {x: -0.0624706, y: -3}
       - {x: -0.0416641, y: -2.999974}
       - {x: 0, y: -2.583332}
       - {x: -0.000029300001, y: -2}
@@ -7799,23 +7841,15 @@ CompositeCollider2D:
       - {x: -2, y: -2.7916682}
       - {x: -1.9791409, y: -3}
       - {x: -1.9375, y: -3.0000293}
-      - {x: -1.9375294, y: -4}
-      - {x: -1.9583353, y: -4.0000267}
-      - {x: -2, y: -4.5625014}
-      - {x: -2.000096, y: -4.7696505}
-      - {x: -2.0624676, y: -4}
-      - {x: -2.0416644, y: -3.999974}
+      - {x: -1.9375294, y: -3.717518}
+      - {x: -2.0134153, y: -3.7174852}
       - {x: -2, y: -3.5833325}
       - {x: -2.0000293, y: -3}
       - {x: -4, y: -3.0000293}
-      - {x: -4, y: -3.791668}
-      - {x: -3.9791405, y: -4}
-      - {x: -3.958336, y: -4.000032}
-      - {x: -4, y: -4.5625014}
-      - {x: -4.000096, y: -4.7696505}
-      - {x: -4.062526, y: -4}
-      - {x: -5.958336, y: -4.0000267}
-      - {x: -6, y: -4.5625014}
+      - {x: -4.0000296, y: -3.717518}
+      - {x: -6.000575, y: -3.7175472}
+      - {x: -6.000546, y: -4.8532314}
+      - {x: -6, y: -4.853261}
       - {x: -6.0000296, y: -5}
       - {x: -9, y: -4.9999704}
       - {x: -8.99997, y: 5}
@@ -7844,21 +7878,7 @@ CompositeCollider2D:
       - {x: 6.9999704, y: -5}
       - {x: 4, y: -4.9999704}
       - {x: 4, y: -4.7708335}
-      - {x: 3.9374735, y: -4}
-      - {x: 2.0416646, y: -4.0000267}
-      - {x: 2, y: -4.5625014}
-      - {x: 1.999904, y: -4.7696505}
-      - {x: 1.9375324, y: -4}
-      - {x: 1.958336, y: -3.999974}
-      - {x: 2, y: -3.5833325}
-      - {x: 1.9999708, y: -3}
-      - {x: 0, y: -3.0000293}
-      - {x: 0.0000001, y: -3.791668}
-      - {x: 0.020859301, y: -4}
-      - {x: 0.0416641, y: -4.000032}
-      - {x: 0, y: -4.5625014}
-      - {x: -0.000096, y: -4.7696505}
-      - {x: -0.0625, y: -4.000001}
+      - {x: 3.9982011, y: -4.7486486}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
 --- !u!50 &1695321989
@@ -7898,6 +7918,32 @@ TilemapCollider2D:
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0.00001
+--- !u!61 &1695321991
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1695321984}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 1
+  m_Offset: {x: -1.0011867, y: -4.2853746}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 9.998776, y: 1.1357136}
+  m_EdgeRadius: 0
 --- !u!1 &1837455120
 GameObject:
   m_ObjectHideFlags: 0

@@ -395,6 +395,9 @@ MonoBehaviour:
   leftCheck: {fileID: 7386312161081235267}
   wallSliding: 0
   wallSlideSpeed: 2
+  wallParticlesTransform: {fileID: 3642081984660864650}
+  wallSlideParticles: {fileID: 3642081985221710035}
+  wallJumpParticles: {fileID: 3642081985533979077}
   wallGrab: 0
   isClimbing: 0
   topCheck: {fileID: 3427479555255764770}
@@ -448,7 +451,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.056454808}
+  m_Offset: {x: 0, y: -0.0040182173}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -459,7 +462,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.51, y: 1.4893498}
+  m_Size: {x: 0.51, y: 1.3684039}
   m_EdgeRadius: 0.1
 --- !u!114 &2038210445
 MonoBehaviour:
@@ -647,17 +650,57 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3784667781277009866}
     m_Modifications:
+    - target: {fileID: 3106245463339179787, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106245463339179828, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ef4d4ec970a1d324ba69162182ce2e15, type: 2}
+    - target: {fileID: 3106245463339179829, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.034
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106245463339179829, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.348
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106245463339179829, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106245463339179830, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+      propertyPath: m_Name
+      value: WallSlideParticles
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106245463664715288, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+      propertyPath: m_Name
+      value: WallJumpParticles
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106245463664715294, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ef4d4ec970a1d324ba69162182ce2e15, type: 2}
+    - target: {fileID: 3106245463664715295, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.046
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106245463664715295, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.549
+      objectReference: {fileID: 0}
     - target: {fileID: 3106245464940491090, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3106245464940491090, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.373
       objectReference: {fileID: 0}
     - target: {fileID: 3106245464940491090, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.104
       objectReference: {fileID: 0}
     - target: {fileID: 3106245464940491090, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
       propertyPath: m_LocalPosition.z
@@ -697,13 +740,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3106245464940491091, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
 --- !u!4 &3642081984660864650 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3106245464940491090, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+  m_PrefabInstance: {fileID: 1842218049789054936}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &3642081985221710035 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 3106245463339179787, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
+  m_PrefabInstance: {fileID: 1842218049789054936}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &3642081985533979077 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 3106245463664715293, guid: fb6f0d36dbabd1b4785c7cb70bd0c876, type: 3}
   m_PrefabInstance: {fileID: 1842218049789054936}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2708338120626266020
@@ -715,7 +768,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7983035096430626793, guid: 4d6f9b5fcc3ff1344b6054ad9227ab4d, type: 3}
       propertyPath: m_Name
-      value: JumpParticle
+      value: JumpParticles
       objectReference: {fileID: 0}
     - target: {fileID: 7983035096430626794, guid: 4d6f9b5fcc3ff1344b6054ad9227ab4d, type: 3}
       propertyPath: m_RootOrder
@@ -761,6 +814,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7983035096430626795, guid: 4d6f9b5fcc3ff1344b6054ad9227ab4d, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ef4d4ec970a1d324ba69162182ce2e15, type: 2}
     - target: {fileID: 7983035096430626796, guid: 4d6f9b5fcc3ff1344b6054ad9227ab4d, type: 3}
       propertyPath: ShapeModule.radius.value
       value: 0.34
